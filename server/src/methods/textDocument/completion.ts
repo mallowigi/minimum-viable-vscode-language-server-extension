@@ -1,6 +1,6 @@
 import { documents, type TextDocumentIdentifier } from "../../documents";
 import log from "../../log";
-import type { RequestMessage } from "../../types";
+import type { Position, RequestMessage } from "../../types";
 import * as fs from "node:fs";
 
 export interface CompletionItem {
@@ -12,17 +12,14 @@ export interface CompletionList {
 	items: CompletionItem[];
 }
 
-export type Position = {
-	line: number;
-	character: number;
-};
-
 export interface TextDocumentPositionParams {
 	textDocument: TextDocumentIdentifier;
 	position: Position;
 }
 
 export interface CompletionParams extends TextDocumentPositionParams {}
+
+const MAX_LENGTH = 100;
 
 // Load from MacOS dict
 const words = fs
@@ -48,11 +45,11 @@ export const completion = (message: RequestMessage): CompletionList => {
 
 	const items = words
 		.filter((word) => word.startsWith(currentPrefix))
-		.slice(0, 100)
+		.slice(0, MAX_LENGTH)
 		.map((label) => ({ label }));
 
 	return {
-		isIncomplete: true,
+		isIncomplete: items.length === MAX_LENGTH,
 		items: items,
 	};
 };
