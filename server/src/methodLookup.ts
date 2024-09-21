@@ -1,6 +1,17 @@
 import { initialize } from "./methods/initialize";
-import type { RequestMessage, RequestMethod } from "./types";
+import { completion } from "./methods/textDocument/completion";
+import { didChange } from "./methods/textDocument/didChange";
+import type { RequestMessage } from "./types";
 
-export const methodLookup: Record<string, RequestMethod> = {
-	initialize,
-};
+export type RequestMethod = (
+	message: RequestMessage,
+) => ReturnType<typeof initialize> | ReturnType<typeof completion>;
+
+export type NotificationMethod = (message: RequestMessage) => void;
+
+export const methodLookup: Record<string, RequestMethod | NotificationMethod> =
+	{
+		initialize: initialize,
+		"textDocument/completion": completion,
+		"textDocument/didChange": didChange,
+	};

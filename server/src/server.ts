@@ -4,13 +4,13 @@ import type { RequestMessage } from "./types";
 
 let buffer = "";
 
-const respond = (id: RequestMessage["id"], result: unknown) => {
+const respond = (id: RequestMessage["id"], result: object | null) => {
 	// Build a message according to jsonrpc, e.g. Content-length followed by the message as JSON
 	const message = JSON.stringify({ id, result }, null, 2);
 	const messageLength = Buffer.byteLength(message, "utf8");
 	const header = `Content-Length: ${messageLength}\r\n\r\n`;
 
-	log.write(header + message);
+	// log.write(header + message);
 	process.stdout.write(header + message);
 };
 
@@ -36,12 +36,20 @@ process.stdin.on("data", (chunk) => {
 		const message = JSON.parse(rawMessage) as RequestMessage;
 
 		// Log the message
-		log.write({ id: message.id, message: message.method });
+		log.write({
+			id: message.id,
+			message: message.method,
+			params: message.params,
+		});
 
 		// Respond to the message
 		const method = methodLookup[message.method];
 		if (method) {
-			respond(message.id, method(message));
+			// We don't want to respond in case of notifications (void)
+			const result = method(message);
+			if (result !== undefined) {
+				respond(message.id, result);
+			}
 		}
 
 		// Remove the message from the buffer
