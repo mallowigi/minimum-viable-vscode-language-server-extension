@@ -6,7 +6,7 @@ let buffer = "";
 
 const respond = (id: RequestMessage["id"], result: unknown) => {
 	// Build a message according to jsonrpc, e.g. Content-length followed by the message as JSON
-	const message = JSON.stringify({ id, result });
+	const message = JSON.stringify({ id, result }, null, 2);
 	const messageLength = Buffer.byteLength(message, "utf8");
 	const header = `Content-Length: ${messageLength}\r\n\r\n`;
 
