@@ -1,6 +1,7 @@
 import { documents, type TextDocumentIdentifier } from "../../documents";
+import log from "../../log";
+import { getSpellingSuggestions } from "../../suggestions";
 import type { Range, RequestMessage } from "../../types";
-import * as fs from "node:fs";
 
 export enum DocumentDiagnosticReportKind {
 	Full = "full",
@@ -31,11 +32,6 @@ export interface DocumentDiagnosticsParams {
 	textDocument: TextDocumentIdentifier;
 }
 
-const dictionary = fs
-	.readFileSync("/usr/share/dict/words", "utf8")
-	.toString()
-	.split("\n");
-
 export const diagnostic = (
 	message: RequestMessage,
 ): FullDocumentDiagnosticReport => {
@@ -48,21 +44,24 @@ export const diagnostic = (
 		};
 	}
 
-	// Find all words that are not found in the dict
-	const wordsInDocument = content.split(/\s+/);
-	const invalidWords = new Set(
-		wordsInDocument.filter((word) => !dictionary.includes(word)),
-	);
+	// Get the invalid words and suggestions from aspell
+	const invalidWordsAndSuggestions: Record<string, string[]> =
+		getSpellingSuggestions(content);
 
 	// Next we need to split the document into lines for the ranges
 	const lines = content.split("\n");
-	const regex = /\b\w+\b/g;
-
 	const items: Diagnostic[] = [];
 
 	// Now we need to build the ranges
-	for (const word of invalidWords) {
+	for (const [word, suggestions] of Object.entries(
+		invalidWordsAndSuggestions,
+	)) {
+		const errorMessage = suggestions.length
+			? `Unknown word: ${word}. Did you mean: ${suggestions.join(", ")}?`
+			: `Unknown word: ${word}`;
+
 		lines.forEach((line, lineNumber) => {
+			// Find all instances of the invalid word in the line
 			const indexes = findAllIndexes(line, word);
 
 			for (const match of indexes) {
@@ -72,7 +71,7 @@ export const diagnostic = (
 						end: { line: lineNumber, character: match + word.length },
 					},
 					severity: DiagnosticSeverity.Error,
-					message: `Unknown word: ${word}`,
+					message: errorMessage,
 				});
 			}
 		});
