@@ -1,5 +1,4 @@
 import { documents, type TextDocumentIdentifier } from "../../documents";
-import log from "../../log";
 import type { Position, RequestMessage } from "../../types";
 import * as fs from "node:fs";
 
