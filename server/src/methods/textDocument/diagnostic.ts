@@ -14,12 +14,18 @@ export enum DiagnosticSeverity {
 	Hint = 4,
 }
 
+interface SpellingSuggestionData {
+	invalidWord: string;
+	wordSuggestions: string[];
+	type?: "spelling-suggestion";
+}
+
 export interface Diagnostic {
 	range: Range;
 	severity?: DiagnosticSeverity;
 	source?: "LSP Example";
 	message: string;
-	data?: unknown;
+	data: SpellingSuggestionData;
 }
 
 export interface FullDocumentDiagnosticReport {
@@ -72,6 +78,10 @@ export const diagnostic = (
 					},
 					severity: DiagnosticSeverity.Error,
 					message: errorMessage,
+					data: {
+						invalidWord: word,
+						wordSuggestions: suggestions,
+					},
 				});
 			}
 		});

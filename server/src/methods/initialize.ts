@@ -11,6 +11,7 @@ interface ServerCapabilities {
 		interFileDependencies: boolean;
 		workspaceDiagnostics: boolean;
 	};
+	codeActionProvider?: boolean;
 }
 
 interface InitializeResult {
@@ -31,6 +32,7 @@ export const initialize = (message: RequestMessage): InitializeResult => ({
 			interFileDependencies: false,
 			workspaceDiagnostics: false,
 		}, // Allows to send diagnostics for errors/warnings/etc
+		codeActionProvider: true,
 	},
 	serverInfo: {
 		name: "lsp-from-scratch",
