@@ -3,7 +3,6 @@ import {
 	type TextDocumentContentChangeEvent,
 	type VersionedTextDocumentIdentifier,
 } from "../../documents";
-import log from "../../log";
 import type { NotificationMessage } from "../../types";
 
 export interface DidChangeTextDocumentParams {

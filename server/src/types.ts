@@ -3,6 +3,17 @@ export type Position = {
 	character: number;
 };
 
+export type Range = {
+	start: {
+		line: number;
+		character: number;
+	};
+	end: {
+		line: number;
+		character: number;
+	};
+};
+
 interface Message {
 	jsonrpc: string;
 }

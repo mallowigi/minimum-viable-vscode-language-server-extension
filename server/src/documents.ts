@@ -1,3 +1,5 @@
+import type { Range } from "./types";
+
 export type DocumentUri = string;
 export type DocumentBody = string;
 
@@ -11,16 +13,7 @@ export interface VersionedTextDocumentIdentifier
 }
 
 export interface TextDocumentContentChangeEvent {
-	range?: {
-		start: {
-			line: number;
-			character: number;
-		};
-		end: {
-			line: number;
-			character: number;
-		};
-	};
+	range?: Range;
 	rangeLength?: number;
 	text: string;
 }
